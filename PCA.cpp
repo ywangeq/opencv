@@ -10,18 +10,18 @@
 using namespace cv;
 using namespace std;
 
-////¶¨Òå¼¸¸öÖØÒªµÄÈ«¾Ö±äÁ¿  
-IplImage ** faceImgArr = 0; // Ö¸ÏòÑµÁ·ÈËÁ³ºÍ²âÊÔÈËÁ³µÄÖ¸Õë£¨ÔÚÑ§Ï°ºÍÊ¶±ğ½×¶ÎÖ¸Ïò²»Í¬£©  
-CvMat    *  personNumTruthMat = 0; // ÈËÁ³Í¼ÏñµÄIDºÅ  
-int nTrainFaces = 0; // ÑµÁ·Í¼ÏñµÄÊıÄ¿  
-int nEigens =0; // ×Ô¼ºÈ¡µÄÖ÷ÒªÌØÕ÷ÖµÊıÄ¿  
-IplImage * pAvgTrainImg = 0; // ÑµÁ·ÈËÁ³Êı¾İµÄÆ½¾ùÖµ  
-IplImage ** eigenVectArr = 0; // Í¶Ó°¾ØÕó£¬Ò²¼´Ö÷ÌØÕ÷ÏòÁ¿  
-CvMat * eigenValMat = 0; // ÌØÕ÷Öµ  
-CvMat * projectedTrainFaceMat = 0; // ÑµÁ·Í¼ÏñµÄÍ¶Ó°  
+////å®šä¹‰å‡ ä¸ªé‡è¦çš„å…¨å±€å˜é‡  
+IplImage ** faceImgArr = 0; // æŒ‡å‘è®­ç»ƒäººè„¸å’Œæµ‹è¯•äººè„¸çš„æŒ‡é’ˆï¼ˆåœ¨å­¦ä¹ å’Œè¯†åˆ«é˜¶æ®µæŒ‡å‘ä¸åŒï¼‰  
+CvMat    *  personNumTruthMat = 0; // äººè„¸å›¾åƒçš„IDå·  
+int nTrainFaces = 0; // è®­ç»ƒå›¾åƒçš„æ•°ç›®  
+int nEigens =0; // è‡ªå·±å–çš„ä¸»è¦ç‰¹å¾å€¼æ•°ç›®  
+IplImage * pAvgTrainImg = 0; // è®­ç»ƒäººè„¸æ•°æ®çš„å¹³å‡å€¼  
+IplImage ** eigenVectArr = 0; // æŠ•å½±çŸ©é˜µï¼Œä¹Ÿå³ä¸»ç‰¹å¾å‘é‡  
+CvMat * eigenValMat = 0; // ç‰¹å¾å€¼  
+CvMat * projectedTrainFaceMat = 0; // è®­ç»ƒå›¾åƒçš„æŠ•å½±  
 
 
-//// º¯ÊıÔ­ĞÍ  
+//// å‡½æ•°åŸå‹  
 void learn();
 void recognize();
 void video_rec();
@@ -34,7 +34,7 @@ void printUsage();
 
 
 
-//Ö÷º¯Êı£¬Ö÷Òª°üÀ¨Ñ§Ï°ºÍÊ¶±ğÁ½¸ö½×¶Î£¬ĞèÒªÔËĞĞÁ½´Î£¬Í¨¹ıÃüÁîĞĞ´«ÈëµÄ²ÎÊıÇø·Ö  
+//ä¸»å‡½æ•°ï¼Œä¸»è¦åŒ…æ‹¬å­¦ä¹ å’Œè¯†åˆ«ä¸¤ä¸ªé˜¶æ®µï¼Œéœ€è¦è¿è¡Œä¸¤æ¬¡ï¼Œé€šè¿‡å‘½ä»¤è¡Œä¼ å…¥çš„å‚æ•°åŒºåˆ†  
 int main()
 {
 	learn();  
@@ -44,15 +44,15 @@ int main()
 }
 
 
-//Ñ§Ï°½×¶Î´úÂë  
+//å­¦ä¹ é˜¶æ®µä»£ç   
 void learn()
 {
-	cout << "¿ªÊ¼ÑµÁ·¹ı³Ì" << endl;
+	cout << "å¼€å§‹è®­ç»ƒè¿‡ç¨‹" << endl;
 
-	//¿ªÊ¼¼ÆÊ±  
+	//å¼€å§‹è®¡æ—¶  
 	int i, offset;
 
-	//¼ÓÔØÑµÁ·Í¼Ïñ¼¯  
+	//åŠ è½½è®­ç»ƒå›¾åƒé›†  
 	nTrainFaces = loadFaceImgArray("try/train.txt");
 	if (nTrainFaces < 2)
 	{
@@ -62,10 +62,10 @@ void learn()
 		return;
 	}
 
-	// ½øĞĞÖ÷³É·Ö·ÖÎö  
+	// è¿›è¡Œä¸»æˆåˆ†åˆ†æ  
 	doPCA();
 	
-	//½«ÑµÁ·Í¼¼¯Í¶Ó°µ½×Ó¿Õ¼äÖĞ  
+	//å°†è®­ç»ƒå›¾é›†æŠ•å½±åˆ°å­ç©ºé—´ä¸­  
 	projectedTrainFaceMat = cvCreateMat(nTrainFaces, nEigens, CV_32FC1);
 	offset = projectedTrainFaceMat->step / sizeof(float);
 	for (i = 0; i<nTrainFaces; i++)
@@ -81,30 +81,30 @@ void learn()
 			projectedTrainFaceMat->data.fl + i*offset);
 	}
 
-	//½«ÑµÁ·½×¶ÎµÃµ½µÄÌØÕ÷Öµ£¬Í¶Ó°¾ØÕóµÈÊı¾İ´æÎª.xmlÎÄ¼ş£¬ÒÔ±¸²âÊÔÊ±Ê¹ÓÃ  
+	//å°†è®­ç»ƒé˜¶æ®µå¾—åˆ°çš„ç‰¹å¾å€¼ï¼ŒæŠ•å½±çŸ©é˜µç­‰æ•°æ®å­˜ä¸º.xmlæ–‡ä»¶ï¼Œä»¥å¤‡æµ‹è¯•æ—¶ä½¿ç”¨  
 	storeTrainingData();
 
 
 }
 
 
-//Ê¶±ğ½×¶Î´úÂë  
+//è¯†åˆ«é˜¶æ®µä»£ç   
 void recognize()
 {
-	cout << "¿ªÊ¼Ê¶±ğ¹ı³Ì" << endl;
+	cout << "å¼€å§‹è¯†åˆ«è¿‡ç¨‹" << endl;
 
-	// ²âÊÔÈËÁ³Êı  
+	// æµ‹è¯•äººè„¸æ•°  
 	int i, nTestFaces = 0;
 
-	// ÑµÁ·½×¶ÎµÄÈËÁ³Êı 
+	// è®­ç»ƒé˜¶æ®µçš„äººè„¸æ•° 
 	CvMat * trainPersonNumMat = 0;
 	float * projectedTestFace = 0;
 
-	// ¼ÓÔØ²âÊÔÍ¼Ïñ£¬²¢·µ»Ø²âÊÔÈËÁ³Êı  
+	// åŠ è½½æµ‹è¯•å›¾åƒï¼Œå¹¶è¿”å›æµ‹è¯•äººè„¸æ•°  
 	nTestFaces = loadFaceImgArray("try/test.txt");
 	printf("%d test faces loaded\n", nTestFaces);
 
-	// ¼ÓÔØ±£´æÔÚ.xmlÎÄ¼şÖĞµÄÑµÁ·½á¹û  
+	// åŠ è½½ä¿å­˜åœ¨.xmlæ–‡ä»¶ä¸­çš„è®­ç»ƒç»“æœ  
 	if (!loadTrainingData(&trainPersonNumMat))
 		return;
 
@@ -113,7 +113,7 @@ void recognize()
 	{
 		int iNearest, nearest, truth;
 
-		//½«²âÊÔÍ¼ÏñÍ¶Ó°µ½×Ó¿Õ¼äÖĞ  
+		//å°†æµ‹è¯•å›¾åƒæŠ•å½±åˆ°å­ç©ºé—´ä¸­  
 		cvEigenDecomposite(
 			faceImgArr[i],
 			nEigens,
@@ -133,7 +133,7 @@ void recognize()
 }
 
 
-//¼ÓÔØ±£´æ¹ıµÄÑµÁ·½á¹û  
+//åŠ è½½ä¿å­˜è¿‡çš„è®­ç»ƒç»“æœ  
 int loadTrainingData(CvMat ** pTrainPersonNumMat)
 {
 	CvFileStorage * fileStorage;
@@ -169,7 +169,7 @@ int loadTrainingData(CvMat ** pTrainPersonNumMat)
 
 
 
-//´æ´¢ÑµÁ·½á¹û  
+//å­˜å‚¨è®­ç»ƒç»“æœ  
 void storeTrainingData()
 {
 	CvFileStorage * fileStorage;
@@ -178,7 +178,7 @@ void storeTrainingData()
 
 	fileStorage = cvOpenFileStorage("facedata.xml", 0, CV_STORAGE_WRITE);
 
-	//´æ´¢ÌØÕ÷Öµ£¬Í¶Ó°¾ØÕó£¬Æ½¾ù¾ØÕóµÈÑµÁ·½á¹û  
+	//å­˜å‚¨ç‰¹å¾å€¼ï¼ŒæŠ•å½±çŸ©é˜µï¼Œå¹³å‡çŸ©é˜µç­‰è®­ç»ƒç»“æœ  
 	cvWriteInt(fileStorage, "nEigens", nEigens);
 	cvWriteInt(fileStorage, "nTrainFaces", nTrainFaces);
 	cvWrite(fileStorage, "trainPersonNumMat", personNumTruthMat, cvAttrList(0, 0));
@@ -208,11 +208,11 @@ void storeTrainingData()
 
 
 
-//Ñ°ÕÒ×î½Ó½üµÄÍ¼Ïñ  
+//å¯»æ‰¾æœ€æ¥è¿‘çš„å›¾åƒ  
 int findNearestNeighbor(float * projectedTestFace)
 {
 
-	//¶¨Òå×îĞ¡¾àÀë£¬²¢³õÊ¼»¯ÎªÎŞÇî´ó
+	//å®šä¹‰æœ€å°è·ç¦»ï¼Œå¹¶åˆå§‹åŒ–ä¸ºæ— ç©·å¤§
 	double leastDistSq = DBL_MAX, accuracy;
 	int i, iTrain, iNearest = 0;
 	double a[500];
@@ -227,8 +227,8 @@ int findNearestNeighbor(float * projectedTestFace)
 				projectedTestFace[i] -
 				projectedTrainFaceMat->data.fl[iTrain*nEigens + i];
 
-			// MahalanobisËã·¨¼ÆËãµÄ¾àÀë
-			//distSq += d_i*d_i; // EuclideanËã·¨¼ÆËãµÄ¾àÀë  
+			// Mahalanobisç®—æ³•è®¡ç®—çš„è·ç¦»
+			//distSq += d_i*d_i; // Euclideanç®—æ³•è®¡ç®—çš„è·ç¦»  
 			distSq += d_i*d_i / eigenValMat->data.fl[i];
 
 		}
@@ -240,7 +240,7 @@ int findNearestNeighbor(float * projectedTestFace)
 			iNearest = iTrain;
 		}
 	}
-	//ÇóãĞÖµ
+	//æ±‚é˜ˆå€¼
 	double max = a[0], threshold;
 	int j;
 	for (j = 1; j<10; j++)
@@ -251,47 +251,47 @@ int findNearestNeighbor(float * projectedTestFace)
 			max = max;
 	}
 	threshold = max / 2;
-	//ÇóÏàËÆÂÊ
+	//æ±‚ç›¸ä¼¼ç‡
 	accuracy = 1 - leastDistSq / threshold;
-	cout << "ÏàËÆÂÊÎª:" << accuracy << endl;
+	cout << "ç›¸ä¼¼ç‡ä¸º:" << accuracy << endl;
 	return iNearest;
 }
 
 
 
-//Ö÷³É·Ö·ÖÎö  
+//ä¸»æˆåˆ†åˆ†æ  
 void doPCA()
 {
 	int i;
 
-	//ÖÕÖ¹Ëã·¨×¼Ôò
+	//ç»ˆæ­¢ç®—æ³•å‡†åˆ™
 	CvTermCriteria calcLimit;
 
-	//¹¹ÔìÍ¼Ïñ
+	//æ„é€ å›¾åƒ
 	CvSize faceImgSize;
 
-	// ×Ô¼ºÉèÖÃÖ÷ÌØÕ÷Öµ¸öÊı  
+	// è‡ªå·±è®¾ç½®ä¸»ç‰¹å¾å€¼ä¸ªæ•°  
 	nEigens = nTrainFaces - 1;
 
-	//·ÖÅäÌØÕ÷ÏòÁ¿´æ´¢¿Õ¼ä  
+	//åˆ†é…ç‰¹å¾å‘é‡å­˜å‚¨ç©ºé—´  
 	faceImgSize.width = faceImgArr[0]->width;
 	faceImgSize.height = faceImgArr[0]->height;
 
-	//·ÖÅä¸öÊıÎªÖ÷ÌØÕ÷Öµ¸öÊı
+	//åˆ†é…ä¸ªæ•°ä¸ºä¸»ç‰¹å¾å€¼ä¸ªæ•°
 	eigenVectArr = (IplImage**)cvAlloc(sizeof(IplImage*)* nEigens);
 	for (i = 0; i<nEigens; i++)
 		eigenVectArr[i] = cvCreateImage(faceImgSize, IPL_DEPTH_32F, 1);
 
-	//·ÖÅäÖ÷ÌØÕ÷Öµ´æ´¢¿Õ¼ä  
+	//åˆ†é…ä¸»ç‰¹å¾å€¼å­˜å‚¨ç©ºé—´  
 	eigenValMat = cvCreateMat(1, nEigens, CV_32FC1);
 
-	// ·ÖÅäÆ½¾ùÍ¼Ïñ´æ´¢¿Õ¼ä  
+	// åˆ†é…å¹³å‡å›¾åƒå­˜å‚¨ç©ºé—´  
 	pAvgTrainImg = cvCreateImage(faceImgSize, IPL_DEPTH_32F, 1);
 
-	// Éè¶¨PCA·ÖÎö½áÊøÌõ¼ş  
+	// è®¾å®šPCAåˆ†æç»“æŸæ¡ä»¶  
 	calcLimit = cvTermCriteria(CV_TERMCRIT_ITER, nEigens, 1);
 
-	// ¼ÆËãÆ½¾ùÍ¼Ïñ£¬ÌØÕ÷Öµ£¬ÌØÕ÷ÏòÁ¿  
+	// è®¡ç®—å¹³å‡å›¾åƒï¼Œç‰¹å¾å€¼ï¼Œç‰¹å¾å‘é‡  
 	cvCalcEigenObjects(
 		nTrainFaces,
 		(void*)faceImgArr,
@@ -303,13 +303,13 @@ void doPCA()
 		pAvgTrainImg,
 		eigenValMat->data.fl);
 
-	//¹éÒ»»¯´óĞ¡
+	//å½’ä¸€åŒ–å¤§å°
 	cvNormalize(eigenValMat, eigenValMat, 1, 0, CV_L1, 0);
 }
 
 
 
-//¼ÓÔØtxtÎÄ¼şµÄÁĞ¾ÙµÄÍ¼Ïñ  
+//åŠ è½½txtæ–‡ä»¶çš„åˆ—ä¸¾çš„å›¾åƒ  
 int loadFaceImgArray(char * filename)
 {
 	FILE * imgListFile = 0;
@@ -323,21 +323,21 @@ int loadFaceImgArray(char * filename)
 		return 0;
 	}
 
-	// Í³¼ÆÈËÁ³Êı  
+	// ç»Ÿè®¡äººè„¸æ•°  
 	while (fgets(imgFilename, 512, imgListFile)) ++nFaces;
 	rewind(imgListFile);
 
-	// ·ÖÅäÈËÁ³Í¼Ïñ´æ´¢¿Õ¼äºÍÈËÁ³IDºÅ´æ´¢¿Õ¼ä  
+	// åˆ†é…äººè„¸å›¾åƒå­˜å‚¨ç©ºé—´å’Œäººè„¸IDå·å­˜å‚¨ç©ºé—´  
 	faceImgArr = (IplImage **)cvAlloc(nFaces*sizeof(IplImage *));
 	personNumTruthMat = cvCreateMat(1, nFaces, CV_32SC1);
 
 	for (iFace = 0; iFace<nFaces; iFace++)
 	{
-		// ´ÓÎÄ¼şÖĞ¶ÁÈ¡ĞòºÅºÍÈËÁ³Ãû³Æ  
+		// ä»æ–‡ä»¶ä¸­è¯»å–åºå·å’Œäººè„¸åç§°  
 		fscanf(imgListFile,
 			"%d %s", personNumTruthMat->data.i + iFace, imgFilename);
 
-		// ¼ÓÔØÈËÁ³Í¼Ïñ  
+		// åŠ è½½äººè„¸å›¾åƒ  
 		faceImgArr[iFace] = cvLoadImage(imgFilename, 0);
 
 		if (!faceImgArr[iFace])
@@ -367,17 +367,17 @@ void printUsage()
 }
 
 
-void video_rec()
+void video_rec() //æ²¡å†™å®Œ
 {
-	// ²âÊÔÈËÁ³Êı  
+	// æµ‹è¯•äººè„¸æ•°  
 	int i, nTestFaces = 0;
 
-	// ÑµÁ·½×¶ÎµÄÈËÁ³Êı 
+	// è®­ç»ƒé˜¶æ®µçš„äººè„¸æ•° 
 	CvMat * trainPersonNumMat = 0;
 	float * projectedTestFace = 0;
 
-	// ¼ÓÔØ²âÊÔÍ¼Ïñ£¬²¢·µ»Ø²âÊÔÈËÁ³Êı  
-	VideoCapture cap(0);    //´ò¿ªÄ¬ÈÏÉãÏñÍ·
+	// åŠ è½½æµ‹è¯•å›¾åƒï¼Œå¹¶è¿”å›æµ‹è¯•äººè„¸æ•°  
+	VideoCapture cap(0);    //æ‰“å¼€é»˜è®¤æ‘„åƒå¤´
 	Mat frame;
 	Mat edges;
 	Mat gray;
@@ -396,7 +396,7 @@ void video_rec()
 	}//nTestFaces = loadFaceImgArray("try/test.txt");
 	printf("%d test faces loaded\n", nTestFaces);
 
-	// ¼ÓÔØ±£´æÔÚ.xmlÎÄ¼şÖĞµÄÑµÁ·½á¹û  
+	// åŠ è½½ä¿å­˜åœ¨.xmlæ–‡ä»¶ä¸­çš„è®­ç»ƒç»“æœ  
 	if (!loadTrainingData(&trainPersonNumMat))
 		return;
 
@@ -405,7 +405,7 @@ void video_rec()
 	{
 		int iNearest, nearest, truth;
 
-		//½«²âÊÔÍ¼ÏñÍ¶Ó°µ½×Ó¿Õ¼äÖĞ  
+		//å°†æµ‹è¯•å›¾åƒæŠ•å½±åˆ°å­ç©ºé—´ä¸­  
 		cvEigenDecomposite(
 			faceImgArr[i],
 			nEigens,
